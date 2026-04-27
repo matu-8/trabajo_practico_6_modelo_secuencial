@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <title>Entrenamiento de Modelo - TensorFlow.js</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Aplicación de regresión lineal secuencial con TensorFlow.js. Entrena un modelo y realiza predicciones." />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Variables de color ── */
+        :root {
+            --c1: #2f6690;
+            --c2: #3a7ca5;
+            --c3: #d9dcd6;
+            --c4: #16425b;
+            --c5: #81c3d7;
+            --radius: 14px;
+            --shadow: 0 8px 32px rgba(22, 66, 91, 0.18);
+        }
+
+        /* ── Reset & base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--c4) 0%, var(--c1) 50%, var(--c2) 100%);
+            padding: 2rem 1rem;
+        }
+
+        /* ── Tarjeta principal ── */
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeUp .5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Header de la tarjeta ── */
+        .card-header {
+            background: var(--c4);
+            color: #fff;
+            padding: 1.5rem 1.8rem 1.4rem;
+            text-align: center;
+        }
+
+        .card-header .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -.3px;
+            margin-bottom: .45rem;
+        }
+
+        .card-header .brand svg {
+            flex-shrink: 0;
+        }
+
+        .formula {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 8px;
+            padding: .25rem .8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: .35rem;
+        }
+
+        .card-header .subtitle {
+            font-size: .8rem;
+            opacity: .7;
+            font-weight: 400;
+        }
+
+        /* ── Cuerpo ── */
+        .card-body {
+            padding: 1.5rem 1.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* ── Secciones internas ── */
+        .section {
+            background: var(--c3);
+            border-radius: 10px;
+            padding: 1.1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--c4);
+            border-left: 3px solid var(--c2);
+            padding-left: .6rem;
+        }
+
+        /* ── Mensaje de estado ── */
+        .status-msg {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .82rem;
+            color: var(--c1);
+            background: rgba(58, 124, 165, .1);
+            border-radius: 8px;
+            padding: .5rem .75rem;
+            min-height: 36px;
+            transition: background .3s;
+        }
+
+        .status-msg.success {
+            color: #1a7a4a;
+            background: rgba(26, 122, 74, .1);
+        }
+
+        .status-msg.error {
+            color: #b94040;
+            background: rgba(185, 64, 64, .1);
+        }
+
+        .status-msg.running {
+            color: var(--c1);
+            background: rgba(47, 102, 144, .12);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: currentColor;
+        }
+
+        /* ── Barra de progreso ── */
+        .progress-wrap {
+            height: 6px;
+            background: rgba(22, 66, 91, .15);
+            border-radius: 99px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--c2), var(--c5));
+            border-radius: 99px;
+            transition: width .2s;
+        }
+
+        /* ── Botones ── */
+        .btn {
+            width: 100%;
+            padding: .75rem 1rem;
+            border: none;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: .92rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            transition: opacity .2s, transform .12s, box-shadow .2s;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-train {
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(47, 102, 144, .35);
+        }
+
+        .btn-train:hover:not(:disabled) {
+            opacity: .9;
+            box-shadow: 0 6px 18px rgba(47, 102, 144, .45);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, var(--c5), #5ab4cc);
+            color: var(--c4);
+            box-shadow: 0 4px 14px rgba(129, 195, 215, .4);
+        }
+
+        .btn-predict:hover:not(:disabled) {
+            opacity: .9;
+            box-shadow: 0 6px 18px rgba(129, 195, 215, .5);
+        }
+
+        /* ── Badge estado entrenamiento ── */
+        .badge {
+            margin-left: auto;
+            font-size: .72rem;
+            font-weight: 600;
+            padding: .18rem .55rem;
+            border-radius: 99px;
+            background: rgba(185, 64, 64, .12);
+            color: #b94040;
+            white-space: nowrap;
+            transition: background .3s, color .3s;
+        }
+
+        .badge.trained {
+            background: rgba(26, 122, 74, .12);
+            color: #1a7a4a;
+        }
+
+        /* ── Input ── */
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-number {
+            width: 100%;
+            padding: .65rem .9rem;
+            border: 2px solid rgba(22, 66, 91, .2);
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: .95rem;
+            color: var(--c4);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            background: #fff;
+        }
+
+        .input-number:focus {
+            border-color: var(--c2);
+            box-shadow: 0 0 0 3px rgba(58, 124, 165, .18);
+        }
+
+        .input-number::-webkit-inner-spin-button {
+            opacity: .4;
+        }
+
+        /* ── Resultado ── */
+        .result-box {
+            background: var(--c4);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            color: #fff;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: .6;
+            margin-bottom: .6rem;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--c5);
+            min-height: 2.5rem;
+            transition: opacity .3s;
+        }
+
+        .result-value.placeholder {
+            color: rgba(129, 195, 215, .4);
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+        }
+
+        .result-formula {
+            font-size: .78rem;
+            opacity: .55;
+            margin-top: .35rem;
+            font-style: italic;
+        }
+
+        /* ── Footer ── */
+        .card-footer {
+            background: var(--c3);
+            padding: .65rem 1.6rem;
+            font-size: .73rem;
+            color: var(--c1);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <!-- Header -->
+        <div class="card-header">
+            <div class="brand">
+                <!-- TF icon -->
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#81c3d7" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                TensorFlow.js
+            </div>
+</body>
+<div class="formula">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#81c3d7" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+    y = 2x + 1
+</div>
+<div class="subtitle">Regresión lineal secuencial</div>
+</div>
+<!-- Body -->
+<div class="card-body">
+    <!-- Sección Entrenamiento -->
+    <div class="section">
+        <div class="section-title">
+            <!-- barras icon -->
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+            Entrenar Modelo
+        </div>
+        <div id="train-status" class="status-msg">
+            <span class="dot"></span>
+            <span id="train-msg">Modelo listo. Presiona "Empezar Entrenamiento".</span>
+        </div>
+        <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <button id="btn-train" class="btn btn-train" onclick="startTraining()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            Empezar Entrenamiento
+        </button>
+    </div>
+    <!-- Sección Predicción -->
+    <div class="section">
+        <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Predecir valor
+            <span id="trained-badge" class="badge">No entrenado</span>
+        </div>
+        <div class="input-wrap">
+            <input id="predict-input" class="input-number" type="number" placeholder="Ingresa un número (ej: 10)"
+                value="4" min="-1000" max="1000" step="1" />
+        </div>
+        <button id="btn-predict" class="btn btn-predict" onclick="predict()" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Predecir
+        </button>
+        <!-- Resultado -->
+        <div class="result-box">
+            <div class="result-label">Resultado de la predicción</div>
+            <div id="result-value" class="result-value placeholder">— — —</div>
+            <div class="result-formula" id="result-formula">y = peso * x + sesgo</div>
+        </div>
+    </div>
+</div><!-- /card-body -->
+<!-- Footer -->
+<div class="card-footer">
+    Modelo secuencial Dense(1) &nbsp;|&nbsp; Entrenamiento con 350 épocas
+</div>
+</div><!-- /card -->
+<script>
+    // ── Estado global ──────────────────────────────────────────────
+    let trainedModel = null;
+    const EPOCHS = 350;
+    // ── Helpers de UI ──────────────────────────────────────────────
+    function setTrainStatus(msg, type = '') {
+        const el = document.getElementById('train-status');
+        el.className = 'status-msg' + (type ? ' ' + type : '');
+        document.getElementById('train-msg').textContent = msg;
+    }
+    function setProgress(pct) {
+        const wrap = document.getElementById('progress-wrap');
+        const bar = document.getElementById('progress-bar');
+        wrap.style.display = pct > 0 ? 'block' : 'none';
+        bar.style.width = pct + '%';
+    }
+    // ── Entrenamiento ──────────────────────────────────────────────
+    async function startTraining() {
+        const btnTrain = document.getElementById('btn-train');
+        btnTrain.disabled = true;
+        document.getElementById('btn-predict').disabled = true;
+        setTrainStatus('Entrenando… por favor espera.', 'running');
+        setProgress(1);
+        // Definir y compilar modelo
+        const model = tf.sequential();
+        model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+        model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
+        // Datos: y = 2x + 1
+        const xs = tf.tensor2d([1, 2, 3, 4, 5, 6, 7, 8], [8, 1]);
+        const ys = tf.tensor2d([3, 5, 7, 9, 11, 13, 15, 17], [8, 1]);
+        await model.fit(xs, ys, {
+            epochs: EPOCHS,
+            callbacks: {
+                onEpochEnd: (epoch) => {
+                    const pct = Math.round(((epoch + 1) / EPOCHS) * 100);
+                    setProgress(pct);
+                    if ((epoch + 1) % 50 === 0) {
+                        setTrainStatus(`Entrenando… épocas: ${epoch + 1} / ${EPOCHS}`, 'running');
+                    }
+                }
+            }
+        });
+        trainedModel = model;
+        setProgress(100);
+        setTrainStatus('Entrenamiento completado con éxito.', 'success');
+        // Actualizar badge
+        const badge = document.getElementById('trained-badge');
+        badge.textContent = 'Entrenado';
+        badge.classList.add('trained');
+        // Habilitar predicción
+        document.getElementById('btn-predict').disabled = false;
+        btnTrain.disabled = false;
+        btnTrain.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Re-Entrenar Modelo
+        `;
+    }
+    // ── Predicción ─────────────────────────────────────────────────
+    function predict() {
+        if (!trainedModel) return;
+        const raw = document.getElementById('predict-input').value;
+        const xVal = parseFloat(raw);
+        if (isNaN(xVal)) {
+            document.getElementById('result-value').textContent = '¡Ingresa un número válido!';
+            document.getElementById('result-value').classList.add('placeholder');
+            document.getElementById('result-formula').textContent = 'y = peso * x + sesgo';
+            return;
+        }
+        const output = trainedModel.predict(tf.tensor2d([xVal], [1, 1]));
+        const prediction = output.dataSync()[0];
+        const rounded = Math.round(prediction * 1000) / 1000;
+        const resultEl = document.getElementById('result-value');
+        resultEl.classList.remove('placeholder');
+        resultEl.textContent = rounded;
+        document.getElementById('result-formula').textContent =
+            `Para x = ${xVal} → y ≈ ${rounded}`;
+    }
+    // ── Enter en input también predice ─────────────────────────────
+    document.getElementById('predict-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') predict();
+    });
+</script>
+</body>
+
+</html>
