@@ -1,0 +1,445 @@
+/* ============================================================
+   style.css — Estilos de la aplicación TensorFlow.js TP6
+   Tecnicatura en Desarrollo de Software — 2do año
+   ============================================================
+   Este archivo contiene TODOS los estilos visuales de la página.
+   Está separado del HTML y del JavaScript a propósito:
+   cada archivo tiene una sola responsabilidad.
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. VARIABLES DE COLOR (paleta del proyecto)
+   ------------------------------------------------------------
+   Las variables CSS (custom properties) permiten definir
+   colores una sola vez y reutilizarlos en todo el archivo.
+   Si queremos cambiar un color, solo lo cambiamos aquí.
+   ------------------------------------------------------------ */
+:root {
+    --color-azul-oscuro:   #2f6690; /* Azul principal */
+    --color-azul-medio:    #3a7ca5; /* Azul secundario / acentos */
+    --color-gris-claro:    #d9dcd6; /* Fondo de secciones internas */
+    --color-azul-profundo: #16425b; /* Azul muy oscuro (header, footer) */
+    --color-celeste:       #81c3d7; /* Celeste claro (detalles, resultados) */
+
+    /* Valores reutilizables de diseño */
+    --borde-redondeado: 14px;
+    --sombra-tarjeta:   0 8px 32px rgba(22, 66, 91, 0.18);
+}
+
+
+/* ------------------------------------------------------------
+   2. RESET BÁSICO
+   ------------------------------------------------------------
+   Elimina márgenes y paddings que los navegadores aplican
+   por defecto, y usa box-sizing: border-box para que el
+   padding no agrande los elementos.
+   ------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ------------------------------------------------------------
+   3. CUERPO DE LA PÁGINA (body)
+   ------------------------------------------------------------
+   Centra la tarjeta en la pantalla tanto horizontal como
+   verticalmente. El degradado usa los colores de la paleta.
+   ------------------------------------------------------------ */
+body {
+    min-height: 100vh; /* Ocupa al menos toda la altura de la pantalla */
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(
+        135deg,
+        var(--color-azul-profundo) 0%,
+        var(--color-azul-oscuro)  50%,
+        var(--color-azul-medio)   100%
+    );
+    padding: 2rem 1rem;
+}
+
+
+/* ------------------------------------------------------------
+   4. TARJETA PRINCIPAL (.card)
+   ------------------------------------------------------------
+   Contenedor central blanco que agrupa todos los elementos
+   de la aplicación.
+   ------------------------------------------------------------ */
+.card {
+    width: 100%;
+    max-width: 500px;          /* No crece más de 500px */
+    background: #ffffff;
+    border-radius: var(--borde-redondeado);
+    box-shadow: var(--sombra-tarjeta);
+    overflow: hidden;          /* Los bordes redondeados se aplican a hijos */
+    animation: aparecer-desde-abajo 0.5s ease both;
+}
+
+/* Animación de entrada de la tarjeta */
+@keyframes aparecer-desde-abajo {
+    from {
+        opacity: 0;
+        transform: translateY(24px); /* Comienza 24px más abajo */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);    /* Termina en su posición normal */
+    }
+}
+
+
+/* ------------------------------------------------------------
+   5. ENCABEZADO DE LA TARJETA (.card-header)
+   ------------------------------------------------------------
+   Franja oscura en la parte superior con el nombre,
+   fórmula y subtítulo del proyecto.
+   ------------------------------------------------------------ */
+.card-header {
+    background: var(--color-azul-profundo);
+    color: #ffffff;
+    padding: 1.5rem 1.8rem 1.4rem;
+    text-align: center;
+}
+
+/* Nombre de la tecnología (ej: "TensorFlow.js") */
+.card-header .marca {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 0.45rem;
+}
+
+/* El ícono SVG dentro del nombre no debe encogerse */
+.card-header .marca svg {
+    flex-shrink: 0;
+}
+
+/* Caja con la fórmula matemática */
+.formula {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.1); /* Blanco semitransparente */
+    border-radius: 8px;
+    padding: 0.25rem 0.8rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+/* Texto pequeño debajo de la fórmula */
+.card-header .subtitulo {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+
+/* ------------------------------------------------------------
+   6. CUERPO DE LA TARJETA (.card-body)
+   ------------------------------------------------------------
+   Área que contiene las secciones de entrenamiento y predicción.
+   ------------------------------------------------------------ */
+.card-body {
+    padding: 1.5rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem; /* Espacio entre secciones */
+}
+
+
+/* ------------------------------------------------------------
+   7. SECCIONES INTERNAS (.section)
+   ------------------------------------------------------------
+   Cada "sección" es un bloque con fondo gris claro que
+   agrupa elementos relacionados (ej: todo lo de entrenamiento).
+   ------------------------------------------------------------ */
+.section {
+    background: var(--color-gris-claro);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+/* Título de cada sección (ej: "Entrenar Modelo") */
+.section-titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-azul-profundo);
+    border-left: 3px solid var(--color-azul-medio); /* Línea de acento */
+    padding-left: 0.6rem;
+}
+
+
+/* ------------------------------------------------------------
+   8. MENSAJE DE ESTADO (.estado-msg)
+   ------------------------------------------------------------
+   Cuadro que muestra información sobre el estado del
+   entrenamiento (listo, corriendo, completado, error).
+   Cambia de color según el modificador de clase aplicado.
+   ------------------------------------------------------------ */
+.estado-msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-azul-oscuro);
+    background: rgba(58, 124, 165, 0.1);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    min-height: 36px;
+    transition: background 0.3s; /* Transición suave al cambiar */
+}
+
+/* Estado: éxito (entrenamiento completado) */
+.estado-msg.exito {
+    color: #1a7a4a;
+    background: rgba(26, 122, 74, 0.1);
+}
+
+/* Estado: error */
+.estado-msg.error {
+    color: #b94040;
+    background: rgba(185, 64, 64, 0.1);
+}
+
+/* Estado: ejecutando (entrenando) */
+.estado-msg.ejecutando {
+    color: var(--color-azul-oscuro);
+    background: rgba(47, 102, 144, 0.12);
+}
+
+/* Punto de color circular a la izquierda del mensaje */
+.punto-estado {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: currentColor; /* Toma el color del texto del padre */
+}
+
+
+/* ------------------------------------------------------------
+   9. BARRA DE PROGRESO
+   ------------------------------------------------------------
+   Barra que muestra el avance del entrenamiento época por época.
+   Está oculta por defecto y se muestra con JavaScript.
+   ------------------------------------------------------------ */
+.progreso-contenedor {
+    height: 6px;
+    background: rgba(22, 66, 91, 0.15);
+    border-radius: 99px; /* Bordes completamente redondeados */
+    overflow: hidden;
+    display: none; /* Oculta por defecto */
+}
+
+.progreso-barra {
+    height: 100%;
+    width: 0%;   /* Comienza en 0, se actualiza con JS */
+    background: linear-gradient(90deg, var(--color-azul-medio), var(--color-celeste));
+    border-radius: 99px;
+    transition: width 0.2s; /* Animación suave al avanzar */
+}
+
+
+/* ------------------------------------------------------------
+   10. BOTONES (.btn)
+   ------------------------------------------------------------
+   Estilo base compartido por todos los botones.
+   Los modificadores .btn-entrenar y .btn-predecir
+   agregan los colores específicos de cada botón.
+   ------------------------------------------------------------ */
+.btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 9px;
+    font-family: inherit; /* Hereda la fuente del body */
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.2s, transform 0.12s, box-shadow 0.2s;
+}
+
+/* Efecto al hacer clic (pequeña escala) */
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Estilo cuando el botón está deshabilitado */
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botón de entrenamiento — azules */
+.btn-entrenar {
+    background: linear-gradient(135deg, var(--color-azul-oscuro), var(--color-azul-medio));
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(47, 102, 144, 0.35);
+}
+
+.btn-entrenar:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: 0 6px 18px rgba(47, 102, 144, 0.45);
+}
+
+/* Botón de predicción — celeste */
+.btn-predecir {
+    background: linear-gradient(135deg, var(--color-celeste), #5ab4cc);
+    color: var(--color-azul-profundo);
+    box-shadow: 0 4px 14px rgba(129, 195, 215, 0.4);
+}
+
+.btn-predecir:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: 0 6px 18px rgba(129, 195, 215, 0.5);
+}
+
+
+/* ------------------------------------------------------------
+   11. BADGE DE ESTADO (.badge)
+   ------------------------------------------------------------
+   Pequeña etiqueta que indica si el modelo está entrenado
+   o no. Aparece junto al título de la sección "Predecir".
+   ------------------------------------------------------------ */
+.badge {
+    margin-left: auto; /* Se empuja al extremo derecho */
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.18rem 0.55rem;
+    border-radius: 99px;
+    background: rgba(185, 64, 64, 0.12); /* Rojo suave = no entrenado */
+    color: #b94040;
+    white-space: nowrap;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Cuando el modelo ya fue entrenado */
+.badge.entrenado {
+    background: rgba(26, 122, 74, 0.12); /* Verde suave = entrenado */
+    color: #1a7a4a;
+}
+
+
+/* ------------------------------------------------------------
+   12. CAMPO DE ENTRADA (.input-numero)
+   ------------------------------------------------------------
+   Campo de texto donde el usuario ingresa el valor a predecir.
+   ------------------------------------------------------------ */
+.input-contenedor {
+    position: relative;
+}
+
+.input-numero {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 2px solid rgba(22, 66, 91, 0.2);
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--color-azul-profundo);
+    outline: none; /* Quitamos el outline por defecto del navegador */
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #ffffff;
+}
+
+/* Estilo cuando el campo está en foco (el usuario hace clic) */
+.input-numero:focus {
+    border-color: var(--color-azul-medio);
+    box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.18);
+}
+
+/* Hace más discretas las flechitas del input numérico */
+.input-numero::-webkit-inner-spin-button {
+    opacity: 0.4;
+}
+
+
+/* ------------------------------------------------------------
+   13. CAJA DE RESULTADO (.resultado-caja)
+   ------------------------------------------------------------
+   Bloque oscuro donde se muestra el número predicho
+   y la fórmula correspondiente.
+   ------------------------------------------------------------ */
+.resultado-caja {
+    background: var(--color-azul-profundo);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* Etiqueta "RESULTADO DE LA PREDICCIÓN" */
+.resultado-etiqueta {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.6rem;
+}
+
+/* Número grande del resultado */
+.resultado-valor {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-celeste);
+    min-height: 2.5rem;
+    transition: opacity 0.3s;
+}
+
+/* Estilo cuando todavía no hay resultado (placeholder) */
+.resultado-valor.sin-resultado {
+    color: rgba(129, 195, 215, 0.4);
+    font-size: 1.5rem;
+    letter-spacing: 6px;
+}
+
+/* Texto pequeño debajo del número (muestra la ecuación) */
+.resultado-formula {
+    font-size: 0.78rem;
+    opacity: 0.55;
+    margin-top: 0.35rem;
+    font-style: italic;
+}
+
+
+/* ------------------------------------------------------------
+   14. PIE DE LA TARJETA (.card-footer)
+   ------------------------------------------------------------
+   Franja inferior con información técnica del modelo.
+   ------------------------------------------------------------ */
+.card-footer {
+    background: var(--color-gris-claro);
+    padding: 0.65rem 1.6rem;
+    font-size: 0.73rem;
+    color: var(--color-azul-oscuro);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
