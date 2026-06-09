@@ -2,7 +2,7 @@
 Este repositorio contiene una aplicación web simple que entrena un modelo de regresión lineal con TensorFlow.js y muestra el gráfico de pérdida por época usando Chart.js.
 
 ## Cómo utilizar el proyecto
-1. Clonar el repositorio desde GitHub.
+1. Clonar el repositorio desde GitHub, desde la rama grf_perdida.
 2. Abrir el archivo `index.html` en un navegador moderno.
 3. Presionar el botón **"Empezar Entrenamiento"** para entrenar el modelo.
 4. Una vez finalizado el entrenamiento, el botón **"Predecir"** se habilita.
