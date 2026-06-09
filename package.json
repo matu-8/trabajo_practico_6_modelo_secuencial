@@ -1,0 +1,26 @@
+{
+  "name": "tp7_grafico_de_perdida",
+  "version": "1.0.0",
+  "description": "Grafico correspondiente a la perdida que sufre un modelo de ML durante los entrenamientos",
+  "homepage": "https://github.com/matu-8/trabajo_practico_6_modelo_secuencial#readme",
+  "bugs": {
+    "url": "https://github.com/matu-8/trabajo_practico_6_modelo_secuencial/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matu-8/trabajo_practico_6_modelo_secuencial.git"
+  },
+  "license": "ISC",
+  "author": "Matias aguero",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "plotly.js-dist-min": "^3.5.1"
+  }
+}
